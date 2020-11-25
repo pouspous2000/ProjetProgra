@@ -60,11 +60,11 @@ def separation():
 
 class Bibliotheque:
     def __init__(self, nom_bibliotheque, nom_fichier_bibliotheque):
-        self.nom_bibliotheque = nom_bibliotheque
+        self.__nom_bibliotheque = nom_bibliotheque
         self.__nom_fichier_bibliotheque = nom_fichier_bibliotheque
-        self.liste_themes = []
-        self.dictionnaire_themes = {}
-        self.question = Question("cc")
+        self.__liste_themes = []
+        self.__dictionnaire_themes = {}
+        self.__question = Question("cc")
 
     def retourne_fichier_bibliotheque(self):
         return recup_donnees_fichier(self.__nom_fichier_bibliotheque)
@@ -74,7 +74,7 @@ class Bibliotheque:
         Crée un objet Theme et l'ajoute à la liste de l'objet Bibliotheque.
         """
         objet_t = Theme(nom_theme)
-        self.liste_themes.append(objet_t)
+        self.__liste_themes.append(objet_t)
 
     def retourne_themes(self):
         """
@@ -83,7 +83,7 @@ class Bibliotheque:
         Post : renvoie les thèmes dans une liste.
         """
         liste = []
-        for theme in self.liste_themes:
+        for theme in self.__liste_themes:
             liste.append(theme.retourne_theme())
         return liste
 
@@ -91,10 +91,10 @@ class Bibliotheque:
         """
         Retourne l'objet Theme sur base de son nom ou du nom de son fichier.
         """
-        for theme in range(len(self.liste_themes)):
-            if self.liste_themes[theme].retourne_theme()[0] == nom_theme or self.liste_themes[theme].retourne_theme()[
-                1] == nom_theme:
-                return self.liste_themes[theme]
+        for theme in range(len(self.__liste_themes)):
+            if self.__liste_themes[theme].retourne_theme()[0] == nom_theme or \
+                    self.__liste_themes[theme].retourne_theme()[1] == nom_theme:
+                return self.__liste_themes[theme]
 
     def retourne_total(self):
         """
@@ -102,9 +102,9 @@ class Bibliotheque:
 
         Post : renvoie un dictionnaire, avec comme clé le nom du thème (pas le nom du fichier).
         """
-        for theme in self.liste_themes:
-            self.dictionnaire_themes[theme.retourne_theme()[0]] = theme.retourne_question_theme()
-        return self.dictionnaire_themes
+        for theme in self.__liste_themes:
+            self.__dictionnaire_themes[theme.retourne_theme()[0]] = theme.retourne_question_theme()
+        return self.__dictionnaire_themes
 
 
 ##############################################################################
@@ -113,7 +113,7 @@ class Theme:
     def __init__(self, nom_fichier):
         self.__nom_theme = nom_fichier[:-4]
         self.__nom_fichier = "fichier/" + nom_fichier
-        self.dictionnaire = {}
+        self.__dictionnaire = {}
         self.__liste_questions = []
 
     def retourne_theme(self):
@@ -131,7 +131,7 @@ class Theme:
 
         Post : renvoie un dictionnaire.
         """
-        return self.dictionnaire
+        return self.__dictionnaire
 
     def recuperer_question(self, question_a_recuperer):
         """
@@ -150,7 +150,7 @@ class Theme:
         """
         objet_q = Question(nom_question)
         objet_q.creation_reponses(reponses)
-        self.dictionnaire[objet_q.retourne_question()] = objet_q.retourne_reponses_question()
+        self.__dictionnaire[objet_q.retourne_question()] = objet_q.retourne_reponses_question()
         self.__liste_questions.append(objet_q)
 
     def ecriture_question(self, liste):
@@ -166,13 +166,13 @@ class Theme:
     def suppression_question(self, question):
         # objet_question = self.recuperer_question(question)
         # print(self.dictionnaire)
-        del self.dictionnaire[question]
+        del self.__dictionnaire[question]
         try:
             with open(self.__nom_fichier, "w", newline='') as fichier:
                 nouveau_fichier = csv.writer(fichier, quotechar=',', quoting=csv.QUOTE_MINIMAL)
                 nouveau_fichier.writerow(["questions", "bonneReponse", "reponseA", "reponseB", "reponseC", "reponseD"])
-                for question in self.dictionnaire:
-                    reponses = self.dictionnaire[question]
+                for question in self.__dictionnaire:
+                    reponses = self.__dictionnaire[question]
                     nouveau_fichier.writerow([question, list(filter(lambda x: x[1] == True, reponses))[0][0],
                                               reponses[0][0], reponses[1][0], reponses[2][0], reponses[3][0]])
 
@@ -186,8 +186,8 @@ class Theme:
 
 class Question():
     def __init__(self, nom_question):
-        self.nom_question = nom_question
-        self.liste_reponse = []
+        self.__nom_question = nom_question
+        self.__liste_reponse = []
 
     def retourne_question(self):
         """
@@ -195,7 +195,7 @@ class Question():
 
         Post : renvoie une string.
         """
-        return self.nom_question
+        return self.__nom_question
 
     def retourne_reponses_question(self):
         """
@@ -203,7 +203,7 @@ class Question():
 
         Post : renvoie une liste de liste.
         """
-        return self.liste_reponse
+        return self.__liste_reponse
 
     def creation_reponses(self, reponses):
         """
@@ -211,7 +211,7 @@ class Question():
         """
         for reponse in reponses:
             objet_r = Reponse(reponse[0], reponse[1])
-            self.liste_reponse.append(objet_r.retourne_reponse())
+            self.__liste_reponse.append(objet_r.retourne_reponse())
 
 
 ##############################################################################
