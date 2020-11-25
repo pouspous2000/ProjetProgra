@@ -4,7 +4,7 @@ import random
 import json
 from datetime import date
 import csv
-
+from fichier import *
 
 def aleatoire(questions, nbr_questions):
     """
@@ -92,8 +92,7 @@ class Bibliotheque:
         Retourne l'objet Theme sur base de son nom ou du nom de son fichier.
         """
         for theme in range(len(self.liste_themes)):
-            if self.liste_themes[theme].retourne_theme()[0] == nom_theme or self.liste_themes[theme].retourne_theme()[
-                1] == nom_theme:
+            if self.liste_themes[theme].retourne_theme()[0] == nom_theme or self.liste_themes[theme].retourne_theme()[1] == nom_theme:
                 return self.liste_themes[theme]
 
     def retourne_total(self):
@@ -234,7 +233,7 @@ class Utilisateur():
         Post : renvoie les thèmes de base de l'application sous forme de dictionnaire
         (donc pas les thèmes que les utilisateurs auraient pu rajouter).
         """
-        return {'Geographie': [], 'Mathematiques': []}
+        return {'geographie': [], 'math': []}
 
     def resultats(self, dico):
         """
@@ -274,16 +273,15 @@ class Manche():
         valid = False
         while not valid:
             try:
-                nombre_questions = int(input(
-                    "Combien de questions pour la partie ? (entrer un chiffre entre 1 et " + str(
-                        len(liste_questions)) + ") : "))
+                nombre_questions = int(input("Combien de questions pour la partie ? (entrer un chiffre entre 1 et " +
+                                             str(len(liste_questions)) + ") : "))
                 valid = True
             except:
                 print('Veuillez entrer un nombre naturel.')
 
         while nombre_questions > len(liste_questions):
-            nombre_questions = int(input(
-                "Il n'y a pas autant de questions dans le theme, ou vous n'avez pas entrez un nombre naturel. Veuillez entrez un nombre plus petit."))
+            nombre_questions = int(input("Il n'y a pas autant de questions dans le theme, ou vous n'avez pas entrez "
+                                         "un nombre naturel. Veuillez entrez un nombre plus petit."))
         self.__nbr_questions = nombre_questions
         separation()
 
@@ -315,10 +313,10 @@ class Manche():
         Permet d'ajouter un score à l'objet Utilisateur.
         """
         try:
-            with open('scores.json', 'r') as file:
+            with open('fichier/scores.json', 'r') as file:
                 dico_python = json.load(file)
                 dico_python[joueur.nom][self.__theme].append([round(self.__pourcentage, 2), self.__date])
-            with open('scores.json', 'w') as fichier:
+            with open('fichier/scores.json', 'w') as fichier:
                 dico_json = json.dumps(dico_python)
                 fichier.write(dico_json)
 
@@ -335,7 +333,7 @@ la librairie, les thèmes, les questions et réponses.
 Initialise ces informations en global pour que tout le monde
 puisse y accéder de n'importe où.
 """
-librairie = Bibliotheque("Application", "themes.csv")
+librairie = Bibliotheque("Application", "fichier/themes.csv")
 
 themes = librairie.retourne_fichier_bibliotheque()
 for theme in themes:
@@ -343,7 +341,7 @@ for theme in themes:
         librairie.creation_theme(nom)
 
 for theme_fichier in librairie.retourne_themes():
-    liste_questions = recup_donnees_fichier(theme_fichier[1])
+    liste_questions = recup_donnees_fichier("fichier/" + theme_fichier[1])
     for question in liste_questions:
         liste_reponses = []
         for reponse in range(2, len(question)):
@@ -354,7 +352,6 @@ for theme_fichier in librairie.retourne_themes():
                 liste_reponses.append([question[reponse], False])
         librairie.recuperer_theme(theme_fichier[1]).creation_question(question[0], liste_reponses)
 
-
 def introduction():
     """
     Lance l'application en demandant le pseudo du joueur.
@@ -362,13 +359,13 @@ def introduction():
     Si il n'est pas encore encodé, son pseudo est enregistré dans l'application.
     """
     try:
-        with open('scores.json') as file:
+        with open('fichier/scores.json') as file:
             dictionnaire = json.load(file)
 
             if joueur.nom not in dictionnaire:
                 dictionnaire[joueur.nom] = joueur.init_resultats()
                 try:
-                    with open('scores.json', 'w') as fichier:
+                    with open('fichier/scores.json', 'w') as fichier:
                         nouveau_dictionnaire = json.dumps(dictionnaire)
                         fichier.write(nouveau_dictionnaire)
 
