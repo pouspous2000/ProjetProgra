@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+#Auteur : Cécile Bonnet - Clémentine Sacré
 
 import random
 import json
@@ -84,7 +85,7 @@ class Bibliotheque:
         """
         liste = []
         for theme in self.__liste_themes:
-            liste.append(theme.retourne_theme())
+            liste.append(theme.nom_theme)
         return liste
 
     def recuperer_theme(self, nom_theme):
@@ -92,8 +93,8 @@ class Bibliotheque:
         Retourne l'objet Theme sur base de son nom ou du nom de son fichier.
         """
         for theme in range(len(self.__liste_themes)):
-            if self.__liste_themes[theme].retourne_theme()[0] == nom_theme or \
-                    self.__liste_themes[theme].retourne_theme()[1] == nom_theme:
+            if self.__liste_themes[theme].nom_theme[0] == nom_theme or \
+                    self.__liste_themes[theme].nom_theme[1] == nom_theme:
                 return self.__liste_themes[theme]
 
     def retourne_total(self):
@@ -103,7 +104,7 @@ class Bibliotheque:
         Post : renvoie un dictionnaire, avec comme clé le nom du thème (pas le nom du fichier).
         """
         for theme in self.__liste_themes:
-            self.__dictionnaire_themes[theme.retourne_theme()[0]] = theme.retourne_question_theme()
+            self.__dictionnaire_themes[theme.nom_theme[0]] = theme.retourne_question_theme()
         return self.__dictionnaire_themes
 
 
@@ -116,7 +117,8 @@ class Theme:
         self.__dictionnaire = {}
         self.__liste_questions = []
 
-    def retourne_theme(self):
+    @property
+    def nom_theme(self):
         """
         Renvoie le nom de l'objet Theme et le nom du fichier qui contient les questions
         de l'objet Theme.
@@ -138,7 +140,7 @@ class Theme:
         Retourne l'objet Theme sur base de son nom ou du nom de son fichier.
         """
         for question in range(len(self.__liste_questions)):
-            if self.__liste_questions[question].retourne_question() == question_a_recuperer:
+            if self.__liste_questions[question].nom_question == question_a_recuperer:
                 return self.__liste_questions[question]
 
     def creation_question(self, nom_question, reponses):
@@ -150,7 +152,7 @@ class Theme:
         """
         objet_q = Question(nom_question)
         objet_q.creation_reponses(reponses)
-        self.__dictionnaire[objet_q.retourne_question()] = objet_q.retourne_reponses_question()
+        self.__dictionnaire[objet_q.nom_question] = objet_q.retourne_reponses_question()
         self.__liste_questions.append(objet_q)
 
     def ecriture_question(self, liste):
@@ -164,8 +166,6 @@ class Theme:
             print('Erreur IO.')
 
     def suppression_question(self, question):
-        # objet_question = self.recuperer_question(question)
-        # print(self.dictionnaire)
         del self.__dictionnaire[question]
         try:
             with open(self.__nom_fichier, "w", newline='') as fichier:
@@ -189,7 +189,8 @@ class Question():
         self.__nom_question = nom_question
         self.__liste_reponse = []
 
-    def retourne_question(self):
+    @property
+    def nom_question(self):
         """
         Renvoie la question de l'objet Question.
 
@@ -211,7 +212,7 @@ class Question():
         """
         for reponse in reponses:
             objet_r = Reponse(reponse[0], reponse[1])
-            self.__liste_reponse.append(objet_r.retourne_reponse())
+            self.__liste_reponse.append(objet_r.nom_reponse)
 
 
 ##############################################################################
@@ -221,7 +222,8 @@ class Reponse():
         self.__nom_reponse = nom_reponse
         self.__type_bonne_reponse = type_bonne_reponse
 
-    def retourne_reponse(self):
+    @property
+    def nom_reponse(self):
         """
         Renvoie le nom de la reponse de l'objet Reponse ainsi que son type (vraie ou fausse).
 
