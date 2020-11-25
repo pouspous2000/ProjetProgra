@@ -4,7 +4,7 @@ import random
 import json
 from datetime import date
 import csv
-from fichier import *
+
 
 def aleatoire(questions, nbr_questions):
     """
@@ -92,7 +92,8 @@ class Bibliotheque:
         Retourne l'objet Theme sur base de son nom ou du nom de son fichier.
         """
         for theme in range(len(self.liste_themes)):
-            if self.liste_themes[theme].retourne_theme()[0] == nom_theme or self.liste_themes[theme].retourne_theme()[1] == nom_theme:
+            if self.liste_themes[theme].retourne_theme()[0] == nom_theme or self.liste_themes[theme].retourne_theme()[
+                1] == nom_theme:
                 return self.liste_themes[theme]
 
     def retourne_total(self):
@@ -111,7 +112,7 @@ class Bibliotheque:
 class Theme:
     def __init__(self, nom_fichier):
         self.__nom_theme = nom_fichier[:-4]
-        self.__nom_fichier = nom_fichier
+        self.__nom_fichier = "fichier/" + nom_fichier
         self.dictionnaire = {}
         self.__liste_questions = []
 
@@ -154,9 +155,27 @@ class Theme:
 
     def ecriture_question(self, liste):
         try:
-            with open(self.__nom_fichier, "a") as file:
-                spamwriter = csv.writer(file, quotechar=',')
-                spamwriter.writerow(liste)
+            with open(self.__nom_fichier, "a") as fichier:
+                nouveau_fichier = csv.writer(fichier, quotechar=',')
+                nouveau_fichier.writerow(liste)
+        except FileNotFoundError:
+            print('Fichier introuvable.')
+        except IOError:
+            print('Erreur IO.')
+
+    def suppression_question(self, question):
+        # objet_question = self.recuperer_question(question)
+        # print(self.dictionnaire)
+        del self.dictionnaire[question]
+        try:
+            with open(self.__nom_fichier, "w", newline='') as fichier:
+                nouveau_fichier = csv.writer(fichier, quotechar=',', quoting=csv.QUOTE_MINIMAL)
+                nouveau_fichier.writerow(["questions", "bonneReponse", "reponseA", "reponseB", "reponseC", "reponseD"])
+                for question in self.dictionnaire:
+                    reponses = self.dictionnaire[question]
+                    nouveau_fichier.writerow([question, list(filter(lambda x: x[1] == True, reponses))[0][0],
+                                              reponses[0][0], reponses[1][0], reponses[2][0], reponses[3][0]])
+
         except FileNotFoundError:
             print('Fichier introuvable.')
         except IOError:
@@ -280,8 +299,7 @@ class Manche():
                 print('Veuillez entrer un nombre naturel.')
 
         while nombre_questions > len(liste_questions):
-            nombre_questions = int(input("Il n'y a pas autant de questions dans le theme, ou vous n'avez pas entrez "
-                                         "un nombre naturel. Veuillez entrez un nombre plus petit."))
+            nombre_questions = int(input("Veuillez entrez un chiffre entre 1 et " + str(len(liste_questions)) + "."))
         self.__nbr_questions = nombre_questions
         separation()
 
@@ -341,7 +359,7 @@ for theme in themes:
         librairie.creation_theme(nom)
 
 for theme_fichier in librairie.retourne_themes():
-    liste_questions = recup_donnees_fichier("fichier/" + theme_fichier[1])
+    liste_questions = recup_donnees_fichier(theme_fichier[1])
     for question in liste_questions:
         liste_reponses = []
         for reponse in range(2, len(question)):
@@ -351,6 +369,7 @@ for theme_fichier in librairie.retourne_themes():
             else:
                 liste_reponses.append([question[reponse], False])
         librairie.recuperer_theme(theme_fichier[1]).creation_question(question[0], liste_reponses)
+
 
 def introduction():
     """
@@ -462,8 +481,36 @@ def supprimer_questions():
     theme_a_modifier = librairie.recuperer_theme(librairie.retourne_themes()[int(choix_theme) - 1][0])
     separation()
 
-    for question in theme_a_modifier.retourne_question_theme():
-        print(question)
+    print("Questions du thème " + librairie.retourne_themes()[int(choix_theme) - 1][0])
+    indice = 1
+    questions_theme = list(theme_a_modifier.retourne_question_theme().keys())
+    for question in questions_theme:
+        print("    ", indice, ". ", question)
+        indice += 1
+
+    question_a_supprimer = input("Choisir la question à supprimer (entre 1 et " + str(indice - 1) + ") : ")
+    separation()
+
+    while True:
+        validation_question = input("Etes-vous sur de vouloir supprimer la question '" + questions_theme[
+            int(question_a_supprimer) - 1] + "' ? (oui ou non) : ")
+        try:
+            if validation_question == "oui" or validation_question == "non":
+                break
+            else:
+                print("Les seules réponses acceptées sont 'oui' et 'non'.")
+        except:
+            print("Les seules réponses acceptées sont 'oui' et 'non'.")
+
+    if validation_question == "oui":
+        theme_a_modifier.suppression_question(questions_theme[int(question_a_supprimer) - 1])
+        print("\nLa question '" + questions_theme[int(question_a_supprimer) - 1] + "' a été supprimée !")
+
+    else:
+        print("\nAnnulation. Aucune question n'a été supprimée.")
+
+    separation()
+    modifier()
 
 
 def modifier():
@@ -524,12 +571,4 @@ def menu():
 
 pseudo = input("Bonjour. Veuillez entrez votre pseudo : ")
 joueur = Utilisateur(pseudo)
-#separation()
-#introduction()
-#menu()
-
-
-
-
-
 
