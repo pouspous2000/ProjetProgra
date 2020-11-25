@@ -290,16 +290,17 @@ class Manche():
         liste_questions = librairie.retourne_total()[self.__theme]
 
         valid = False
-        while not valid:
+        while True:
             try:
                 nombre_questions = int(input("Combien de questions pour la partie ? (entrer un chiffre entre 1 et " +
                                              str(len(liste_questions)) + ") : "))
-                valid = True
+                if 0 < nombre_questions <= len(liste_questions):
+                    break
+                else:
+                    print("Veuillez entrez un chiffre entre 1 et " + str(len(liste_questions)) + ".")
             except:
                 print('Veuillez entrer un nombre naturel.')
 
-        while nombre_questions > len(liste_questions):
-            nombre_questions = int(input("Veuillez entrez un chiffre entre 1 et " + str(len(liste_questions)) + "."))
         self.__nbr_questions = nombre_questions
         separation()
 
@@ -325,6 +326,9 @@ class Manche():
         self.__pourcentage = points_joueur / len(liste_questions_aleatoires) * 100
 
         self.ajout_score()
+
+        separation()
+        menu()
 
     def ajout_score(self):
         """
