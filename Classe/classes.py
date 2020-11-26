@@ -5,6 +5,7 @@ import random
 import json
 from datetime import date
 import csv
+import os
 
 
 def aleatoire(questions, nbr_questions):
@@ -70,7 +71,7 @@ class Bibliotheque:
     def retourne_fichier_bibliotheque(self):
         return recup_donnees_fichier(self.__nom_fichier_bibliotheque)
 
-    def creation_theme(self, nom_theme):
+    def initialisation_theme(self, nom_theme):
         """
         Crée un objet Theme et l'ajoute à la liste de l'objet Bibliotheque.
         """
@@ -107,6 +108,38 @@ class Bibliotheque:
             self.__dictionnaire_themes[theme.nom_theme[0]] = theme.retourne_question_theme()
         return self.__dictionnaire_themes
 
+    def creation_theme(self, nom_du_new_fichier):
+        nouveau_theme = Theme(nom_du_new_fichier+".csv")
+        #nouveau_theme = str(nom_du_new_fichier) + ".csv"
+
+        nom_fichier = nouveau_theme.nom_theme[1]
+        with open(nom_fichier, 'w', newline='') as csvfile:
+            write = csv.writer(csvfile)
+            write.writerow(["questions","bonneReponse","reponseA","reponseB","reponseC","reponseD"])
+
+        self.__liste_themes.append(nom_du_new_fichier)
+
+        self.__dictionnaire_themes['nom_du_fichier'] = ""
+
+        with open("fichier/themes.csv", 'a', newline='') as doss21:
+            write = csv.writer(doss21)
+            write.writerow([nom_fichier[8:]])
+
+    def suppression_theme(self, nom_du_fichier, indice):
+        os.remove("fichier/" + nom_du_fichier)
+        del self.__liste_themes[indice]
+
+        liste_fichiers = []
+        with open("fichier/themes.csv", "r") as doss1:
+            lire = csv.reader(doss1)
+            for ligne in lire:
+                if nom_du_fichier != (','.join(ligne).rstrip()):
+                    liste_fichiers.append(','.join(ligne))
+
+        with open("fichier/themes.csv", 'w', newline='') as doss2:
+            write = csv.writer(doss2)
+            for i in liste_fichiers:
+                write.writerow([i])
 
 ##############################################################################
 
@@ -180,6 +213,7 @@ class Theme:
             print('Fichier introuvable.')
         except IOError:
             print('Erreur IO.')
+
 
 
 ##############################################################################
@@ -362,7 +396,7 @@ librairie = Bibliotheque("Application", "fichier/themes.csv")
 themes = librairie.retourne_fichier_bibliotheque()
 for theme in themes:
     for nom in theme:
-        librairie.creation_theme(nom)
+        librairie.initialisation_theme(nom)
 
 for theme_fichier in librairie.retourne_themes():
     liste_questions = recup_donnees_fichier(theme_fichier[1])
@@ -518,6 +552,28 @@ def supprimer_questions():
     separation()
     modifier()
 
+def ajouter_theme() :
+    nouveau_theme = input("Quel est le nom du thème que vous voulez ajouter : ")
+    librairie.creation_theme(nouveau_theme)
+
+    separation()
+    modifier()
+
+def supprimer_theme() :
+    print("Thèmes : ")
+    for i in range(len(librairie.retourne_themes())):
+        print("    " + str(i + 1) + ". " + librairie.retourne_themes()[i][0])
+    print("")
+
+    numero_theme = int(input("Sélectionner le numéro du thème que vous désirez supprimer entre " + str(1) + " et " + str(
+        len(librairie.retourne_themes())) + " : "))
+    while int(numero_theme) > len(librairie.retourne_themes()):
+        num = int(input("Sélectionner le numéro du thème que vous désirez supprimer entre " + str(1) + "et " + str(
+            len(librairie.retourne_themes())) + " : "))
+    librairie.suppression_theme(librairie.retourne_themes()[numero_theme-1][1][8:], numero_theme-1)
+
+    sepratation()
+    modifier()
 
 def modifier():
     """
