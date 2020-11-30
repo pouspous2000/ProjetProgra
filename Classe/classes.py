@@ -2,6 +2,7 @@
 #Auteur : Cécile Bonnet - Clémentine Sacré
 
 #bonjour clem
+#test 2
 
 import random
 import json
